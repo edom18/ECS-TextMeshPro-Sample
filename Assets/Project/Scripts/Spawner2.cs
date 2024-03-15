@@ -30,6 +30,15 @@ public class Spawner2 : MonoBehaviour
             FilterSettings = filterSetting,
             LightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off,
         };
+
+        // Mesh mesh = _meshes[0];
+        // Vector3[] vertices = mesh.vertices;
+        // for (int i = 0; i < vertices.Length; i++)
+        // {
+        //     vertices[i] = vertices[i] - Vector3.up * 0.1f;
+        // }
+        // mesh.vertices = vertices;
+        // mesh.RecalculateBounds();
         
         RenderBounds renderBounds = new RenderBounds
         {
@@ -37,19 +46,19 @@ public class Spawner2 : MonoBehaviour
         };
         
         Entity entity = entityManage.CreateEntity();
-        entityManage.SetName(entity, "MeshEntity");
+        entityManage.SetName(entity, "CubeMeshEntity");
         
         RenderMeshUtility.AddComponents(
             entity,
             entityManage,
             renderMeshDescription,
             renderMeshArray,
-            MaterialMeshInfo.FromRenderMeshArrayIndices(0, 0));
+            MaterialMeshInfo.FromRenderMeshArrayIndices(0, 1));
         
         Vector3 r = UnityEngine.Random.insideUnitSphere;
         entityManage.SetComponentData(entity, new LocalToWorld
         {
-            Value = float4x4.TRS(new float3(r.x, r.y, r.z), quaternion.identity, new float3(0.1f)),
+            Value = float4x4.TRS(new float3(0), quaternion.identity, new float3(0.1f)),
         });
         entityManage.SetComponentData(entity, renderBounds);
     }
