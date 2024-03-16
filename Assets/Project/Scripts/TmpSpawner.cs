@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using Unity.Entities;
 using Unity.Entities.Graphics;
@@ -8,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TextCore;
-using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public struct MeshInstanceData : IComponentData
@@ -24,6 +22,7 @@ public class TmpSpawner : MonoBehaviour
     [SerializeField] private TMP_Text _targetText;
     [SerializeField] private float _fontSize = 24f;
     [SerializeField] private float _unitPerPixel = 100f;
+    [SerializeField] private int _count = 100;
 
     private Mesh[] _meshes;
 
@@ -31,15 +30,23 @@ public class TmpSpawner : MonoBehaviour
 
     private void Start()
     {
+        SetupEntities();
+    }
+
+    private void SetupEntities()
+    {
         _meshes = new Mesh[_targetText.text.Length];
         for (int i = 0; i < _targetText.text.Length; i++)
         {
             _meshes[i] = CreateMeshAt(i);
         }
 
-        for (int i = 0; i < _meshes.Length; i++)
+        for (int c = 0; c < _count; c++)
         {
-            CreateEntity(i);
+            for (int i = 0; i < _meshes.Length; i++)
+            {
+                CreateEntity(i);
+            }
         }
     }
 
@@ -69,17 +76,13 @@ public class TmpSpawner : MonoBehaviour
             renderMeshArray,
             MaterialMeshInfo.FromRenderMeshArrayIndices(0, index));
 
-        float x = index * FontSizeToUnit;
-        float3 position = new float3(x, 0, 0);
+        float range = 100f * 0.5f * FontSizeToUnit;
+        float x = Random.Range(-range, range);
+        float y = Random.Range(-range, range);
+        float z = Random.Range(-range, range);
+        float3 position = new float3(x, y, z);
         float3 scale = new float3(1f);
-        entityManager.SetComponentData(entity, new LocalToWorld()
-        {
-            Value = float4x4.TRS(
-                position,
-                quaternion.identity,
-                scale),
-        });
-        
+
         entityManager.AddComponentData(entity, new MeshInstanceData
         {
             Position = position,
@@ -114,12 +117,17 @@ public class TmpSpawner : MonoBehaviour
         float glyphWidth = glyph.metrics.width * toUnit;
         float glyphHeight = glyph.metrics.height * toUnit;
 
+        float x0 = -glyphWidth * 0.5f;
+        float x1 = glyphWidth * 0.5f;
+        float y0 = -glyphHeight * 0.5f;
+        float y1 = glyphHeight * 0.5f;
+
         Vector3[] vertices = new[]
         {
-            new Vector3(0, 0, 0),
-            new Vector3(0, glyphHeight, 0),
-            new Vector3(glyphWidth, glyphHeight, 0),
-            new Vector3(glyphWidth, 0, 0),
+            new Vector3(x0, y0, 0),
+            new Vector3(x0, y1, 0),
+            new Vector3(x1, y1, 0),
+            new Vector3(x1, y0, 0),
         };
 
         // グリフのUVを計算
