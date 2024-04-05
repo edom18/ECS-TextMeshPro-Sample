@@ -90,6 +90,8 @@ public class TmpSpawner : MonoBehaviour
             Scale = scale,
         });
 
+        entityManager.AddComponentData(entity, new CustomUvData());
+
         RenderBounds renderBounds = new RenderBounds
         {
             Value = _meshes[index].bounds.ToAABB(),
