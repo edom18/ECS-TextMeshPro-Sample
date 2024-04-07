@@ -12,11 +12,10 @@ public partial struct CustomUvSystem : ISystem
     {
         double time = SystemAPI.Time.ElapsedTime;
 
-        float u = 0f;
         foreach (var customUvData in SystemAPI.Query<RefRW<CustomUvData>>())
         {
-            customUvData.ValueRW.Value = new float2(math.clamp(u + (float)time, 0f, 1f), 0.5f);
-            u += 0.001f;
+            double t = math.abs(math.sin(time));
+            // customUvData.ValueRW.Value = new float4(0, 0, 0.1f * (float)t, 0.1f);
         }
     }
 }
