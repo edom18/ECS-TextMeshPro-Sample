@@ -93,17 +93,15 @@ public class TmpSpawner : MonoBehaviour
             Scale = scale,
         });
 
-        NativeArray<float2> uvs = new NativeArray<float2>(4, Allocator.Temp);
         Mesh mesh = _meshes[index];
-
-        float2 offset = new float2(mesh.uv[0].x, mesh.uv[0].y);
-        float uvScaleX = mesh.uv[0].x / mesh.uv[3].x;
-        float uvScaleY = mesh.uv[0].y / mesh.uv[3].y;
+        float offsetX = mesh.uv[0].x;
+        float offsetY = mesh.uv[0].y;
+        float uvScaleX = mesh.uv[3].x - mesh.uv[0].x;
+        float uvScaleY = mesh.uv[1].y - mesh.uv[0].y;
 
         entityManager.AddComponentData(entity, new CustomUvData()
         {
-            // Value = new float4(offset.x, offset.y, uvScaleX, uvScaleY),
-            Value = new float4(0, 0, 0.01f * (index + 1), 0.01f),
+            Value = new float4(offsetX, offsetY, uvScaleX, uvScaleY),
         });
 
         RenderBounds renderBounds = new RenderBounds

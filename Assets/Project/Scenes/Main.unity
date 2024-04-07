@@ -1207,7 +1207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _material: {fileID: 2100000, guid: 6c105da67f240f64f96576f49173a32f, type: 2}
   _targetText: {fileID: 1359061299}
-  _fontSize: 80
+  _fontSize: 200
   _unitPerPixel: 100
   _count: 10000
   _mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
