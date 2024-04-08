@@ -1,9 +1,11 @@
+using System;
 using TMPro;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Entities.Graphics;
 using Unity.Mathematics;
 using Unity.Rendering;
-using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TextCore;
@@ -23,6 +25,7 @@ public class TmpSpawner : MonoBehaviour
     [SerializeField] private float _fontSize = 24f;
     [SerializeField] private float _unitPerPixel = 100f;
     [SerializeField] private int _count = 100;
+    [SerializeField] private Mesh _mesh;
 
     private Mesh[] _meshes;
 
@@ -59,7 +62,7 @@ public class TmpSpawner : MonoBehaviour
         filterSettings.ShadowCastingMode = ShadowCastingMode.Off;
         filterSettings.ReceiveShadows = false;
 
-        RenderMeshArray renderMeshArray = new RenderMeshArray(new[] { _material }, _meshes);
+        RenderMeshArray renderMeshArray = new RenderMeshArray(new[] { _material }, new[] { _mesh });
         RenderMeshDescription renderMeshDescription = new RenderMeshDescription
         {
             FilterSettings = filterSettings,
@@ -74,7 +77,7 @@ public class TmpSpawner : MonoBehaviour
             entityManager,
             renderMeshDescription,
             renderMeshArray,
-            MaterialMeshInfo.FromRenderMeshArrayIndices(0, index));
+            MaterialMeshInfo.FromRenderMeshArrayIndices(0, 0));
 
         float range = 100f * 0.5f * FontSizeToUnit;
         float x = Random.Range(-range, range);
@@ -88,6 +91,17 @@ public class TmpSpawner : MonoBehaviour
             Position = position,
             Rotation = quaternion.identity,
             Scale = scale,
+        });
+
+        Mesh mesh = _meshes[index];
+        float offsetX = mesh.uv[0].x;
+        float offsetY = mesh.uv[0].y;
+        float uvScaleX = mesh.uv[3].x - mesh.uv[0].x;
+        float uvScaleY = mesh.uv[1].y - mesh.uv[0].y;
+
+        entityManager.AddComponentData(entity, new CustomUvData()
+        {
+            Value = new float4(offsetX, offsetY, uvScaleX, uvScaleY),
         });
 
         RenderBounds renderBounds = new RenderBounds
