@@ -1157,7 +1157,8 @@ MonoBehaviour:
   _count: 10000
   _mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   _distributing: 50
-  _fontSizeInCm: 24
+  _moveSpanRange: {x: 0.8, y: 1.5}
+  _fontSizeInCm: 48
 --- !u!4 &1717456732
 Transform:
   m_ObjectHideFlags: 0

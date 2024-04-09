@@ -30,8 +30,7 @@ partial struct TmpUpdateJob : IJobEntity
 
     private void Execute([EntityIndexInQuery] int index, ref MeshInstanceData meshData, ref LocalToWorld localTransform)
     {
-        float moveSpan = 0.1f;
-        double move = math.sin((Time * meshData.TimeSpeed + index) * math.PI) * moveSpan; // index is just offset for the time.
+        double move = math.sin((Time * meshData.TimeSpeed + index) * math.PI) * meshData.MoveSpan; // index is just offset for the time.
         float3 position = meshData.Position + new float3(move);
 
         float angleSpeed = 0.005f;

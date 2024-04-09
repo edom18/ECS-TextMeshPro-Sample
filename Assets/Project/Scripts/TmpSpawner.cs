@@ -14,6 +14,7 @@ public struct MeshInstanceData : IComponentData
     public quaternion Rotation;
     public float3 Scale;
     public float TimeSpeed;
+    public float MoveSpan;
 }
 
 public class TmpSpawner : MonoBehaviour
@@ -23,6 +24,7 @@ public class TmpSpawner : MonoBehaviour
     [SerializeField] private int _count = 100;
     [SerializeField] private Mesh _mesh;
     [SerializeField] private float _distributing = 200f;
+    [SerializeField] private Vector2 _moveSpanRange = new Vector2(0.1f, 0.5f);
 
     [SerializeField, Tooltip("フォントサイズをcmで指定")]
     private float _fontSizeInCm = 24f;
@@ -72,14 +74,12 @@ public class TmpSpawner : MonoBehaviour
             renderMeshArray,
             MaterialMeshInfo.FromRenderMeshArrayIndices(0, 0));
 
-        float range = _distributing * 0.5f;
-        float x = Random.Range(-range, range);
-        float y = Random.Range(-range, range);
-        float z = Random.Range(-range, range);
-        float3 position = new float3(x, y, z);
+        Vector3 p = Random.insideUnitSphere * _distributing;
+        float3 position = new float3(p.x, p.y, p.z);
         quaternion rotation = quaternion.identity;
         float3 scale = GetScale(index);
         float timeSpeed = Random.Range(0.1f, 2f);
+        float moveSpan = Random.Range(_moveSpanRange.x, _moveSpanRange.y);
         
         entityManager.AddComponentData(entity, new MeshInstanceData
         {
@@ -87,6 +87,7 @@ public class TmpSpawner : MonoBehaviour
             Rotation = rotation,
             Scale = scale,
             TimeSpeed = timeSpeed,
+            MoveSpan = moveSpan,
         });
 
         entityManager.AddComponentData(entity, GetCustomUvData(index));
