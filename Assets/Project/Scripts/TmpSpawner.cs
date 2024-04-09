@@ -23,7 +23,12 @@ public class TmpSpawner : MonoBehaviour
     [SerializeField] private int _count = 100;
     [SerializeField] private Mesh _mesh;
     [SerializeField] private float _distributing = 200f;
-    [SerializeField] private float _fontSize = 24f;
+
+    [SerializeField, Tooltip("フォントサイズをcmで指定")]
+    private float _fontSizeInCm = 24f;
+
+    // フォントサイズの単位はcmとする
+    private float FontSizeToUnit => _fontSizeInCm * 0.01f;
 
     private void Start()
     {
@@ -72,14 +77,16 @@ public class TmpSpawner : MonoBehaviour
         float y = Random.Range(-range, range);
         float z = Random.Range(-range, range);
         float3 position = new float3(x, y, z);
-        float3 scale = new float3(1f);
-
+        quaternion rotation = quaternion.identity;
+        float3 scale = GetScale(index);
+        float timeSpeed = Random.Range(0.1f, 2f);
+        
         entityManager.AddComponentData(entity, new MeshInstanceData
         {
             Position = position,
-            Rotation = quaternion.identity,
+            Rotation = rotation,
             Scale = scale,
-            TimeSpeed = Random.Range(0.1f, 2f),
+            TimeSpeed = timeSpeed,
         });
 
         entityManager.AddComponentData(entity, GetCustomUvData(index));
@@ -131,5 +138,28 @@ public class TmpSpawner : MonoBehaviour
         {
             Value = new float4(offsetX, offsetY, uvScaleX, uvScaleY),
         };
+    }
+
+    private float3 GetScale(int index)
+    {
+        TMP_FontAsset fontAsset = _targetText.font;
+        char character = _targetText.text[index];
+        if (!fontAsset.characterLookupTable.TryGetValue(character, out TMP_Character tmpCharacter))
+        {
+            throw new System.Exception("Character not found in font asset");
+        }
+
+        // グリフ情報を取得
+
+        Glyph glyph = tmpCharacter.glyph;
+
+        // グリフの幅と高さを計算
+
+        float toUnit = 1f / fontAsset.faceInfo.pointSize * FontSizeToUnit;
+
+        float glyphWidth = glyph.metrics.width * toUnit;
+        float glyphHeight = glyph.metrics.height * toUnit;
+
+        return new float3(glyphWidth, glyphHeight, 1f);
     }
 }
