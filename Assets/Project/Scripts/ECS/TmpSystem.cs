@@ -6,11 +6,11 @@ using Unity.Transforms;
 [UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct TmpSystem : ISystem
 {
-    // public void OnCreate(ref SystemState state)
-    // {
-    //     state.RequireForUpdate<MeshInstanceData>();
-    //     state.RequireForUpdate<LocalToWorld>();
-    // }
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<MeshInstanceData>();
+        state.RequireForUpdate<LocalToWorld>();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
