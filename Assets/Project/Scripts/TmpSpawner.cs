@@ -83,12 +83,21 @@ public class TmpSpawner : MonoBehaviour
         });
 
         entityManager.AddComponentData(entity, GetCustomUvData(index));
+        entityManager.AddComponentData(entity, GetRandomColorData());
 
         RenderBounds renderBounds = new RenderBounds
         {
             Value = _mesh.bounds.ToAABB(),
         };
         entityManager.SetComponentData(entity, renderBounds);
+    }
+
+    private ColorData GetRandomColorData()
+    {
+        return new ColorData()
+        {
+            Value = new float4(Random.value, Random.value, Random.value, 1f),
+        };
     }
 
     private CustomUvData GetCustomUvData(int index)
