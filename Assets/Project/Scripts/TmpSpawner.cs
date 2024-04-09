@@ -1,7 +1,4 @@
-using System;
 using TMPro;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Entities.Graphics;
 using Unity.Mathematics;
@@ -22,14 +19,10 @@ public class TmpSpawner : MonoBehaviour
 {
     [SerializeField] private Material _material;
     [SerializeField] private TMP_Text _targetText;
-    [SerializeField] private float _fontSize = 24f;
-    [SerializeField] private float _unitPerPixel = 100f;
     [SerializeField] private int _count = 100;
     [SerializeField] private Mesh _mesh;
-
-    private Mesh[] _meshes;
-
-    private float FontSizeToUnit => _fontSize / _unitPerPixel;
+    [SerializeField] private float _distributing = 200f;
+    [SerializeField] private float _fontSize = 24f;
 
     private void Start()
     {
@@ -38,15 +31,9 @@ public class TmpSpawner : MonoBehaviour
 
     private void SetupEntities()
     {
-        _meshes = new Mesh[_targetText.text.Length];
-        for (int i = 0; i < _targetText.text.Length; i++)
-        {
-            _meshes[i] = CreateMeshAt(i);
-        }
-
         for (int c = 0; c < _count; c++)
         {
-            for (int i = 0; i < _meshes.Length; i++)
+            for (int i = 0; i < _targetText.text.Length; i++)
             {
                 CreateEntity(i);
             }
@@ -79,7 +66,7 @@ public class TmpSpawner : MonoBehaviour
             renderMeshArray,
             MaterialMeshInfo.FromRenderMeshArrayIndices(0, 0));
 
-        float range = 100f * 0.5f * FontSizeToUnit;
+        float range = _distributing * 0.5f;
         float x = Random.Range(-range, range);
         float y = Random.Range(-range, range);
         float z = Random.Range(-range, range);
@@ -93,25 +80,16 @@ public class TmpSpawner : MonoBehaviour
             Scale = scale,
         });
 
-        Mesh mesh = _meshes[index];
-        float offsetX = mesh.uv[0].x;
-        float offsetY = mesh.uv[0].y;
-        float uvScaleX = mesh.uv[3].x - mesh.uv[0].x;
-        float uvScaleY = mesh.uv[1].y - mesh.uv[0].y;
-
-        entityManager.AddComponentData(entity, new CustomUvData()
-        {
-            Value = new float4(offsetX, offsetY, uvScaleX, uvScaleY),
-        });
+        entityManager.AddComponentData(entity, GetCustomUvData(index));
 
         RenderBounds renderBounds = new RenderBounds
         {
-            Value = _meshes[index].bounds.ToAABB(),
+            Value = _mesh.bounds.ToAABB(),
         };
         entityManager.SetComponentData(entity, renderBounds);
     }
 
-    private Mesh CreateMeshAt(int index)
+    private CustomUvData GetCustomUvData(int index)
     {
         TMP_FontAsset fontAsset = _targetText.font;
         char character = _targetText.text[index];
@@ -124,26 +102,6 @@ public class TmpSpawner : MonoBehaviour
 
         Glyph glyph = tmpCharacter.glyph;
 
-        // グリフの幅と高さを計算
-
-        float toUnit = 1f / fontAsset.faceInfo.pointSize * FontSizeToUnit;
-
-        float glyphWidth = glyph.metrics.width * toUnit;
-        float glyphHeight = glyph.metrics.height * toUnit;
-
-        float x0 = -glyphWidth * 0.5f;
-        float x1 = glyphWidth * 0.5f;
-        float y0 = -glyphHeight * 0.5f;
-        float y1 = glyphHeight * 0.5f;
-
-        Vector3[] vertices = new[]
-        {
-            new Vector3(x0, y0, 0),
-            new Vector3(x0, y1, 0),
-            new Vector3(x1, y1, 0),
-            new Vector3(x1, y0, 0),
-        };
-
         // グリフのUVを計算
 
         float rectWidth = glyph.glyphRect.width;
@@ -153,26 +111,14 @@ public class TmpSpawner : MonoBehaviour
         float rx = glyph.glyphRect.x;
         float ry = glyph.glyphRect.y;
 
-        Vector2 uv0 = new Vector2(rx / atlasWidth, ry / atlasHeight);
-        Vector2 uv1 = new Vector2(uv0.x, (ry + rectHeight) / atlasHeight);
-        Vector2 uv2 = new Vector2((rx + rectWidth) / atlasWidth, uv1.y);
-        Vector2 uv3 = new Vector2(uv2.x, uv0.y);
+        float offsetX = rx / atlasWidth;
+        float offsetY = ry / atlasHeight;
+        float uvScaleX = ((rx + rectWidth) / atlasWidth) - offsetX;
+        float uvScaleY = ((ry + rectHeight) / atlasHeight) - offsetY;
 
-        Vector2[] uv = new[]
+        return new CustomUvData()
         {
-            uv0, uv1, uv2, uv3,
+            Value = new float4(offsetX, offsetY, uvScaleX, uvScaleY),
         };
-
-        int[] triangles = new[]
-        {
-            0, 1, 2,
-            0, 2, 3,
-        };
-
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.triangles = triangles;
-        return mesh;
     }
 }
