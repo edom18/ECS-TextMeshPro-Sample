@@ -13,6 +13,7 @@ public struct MeshInstanceData : IComponentData
     public float3 Position;
     public quaternion Rotation;
     public float3 Scale;
+    public float TimeSpeed;
 }
 
 public class TmpSpawner : MonoBehaviour
@@ -78,6 +79,7 @@ public class TmpSpawner : MonoBehaviour
             Position = position,
             Rotation = quaternion.identity,
             Scale = scale,
+            TimeSpeed = Random.Range(0.1f, 2f),
         });
 
         entityManager.AddComponentData(entity, GetCustomUvData(index));

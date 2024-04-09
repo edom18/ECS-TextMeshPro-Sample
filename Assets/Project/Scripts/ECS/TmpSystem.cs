@@ -30,11 +30,11 @@ partial struct TmpUpdateJob : IJobEntity
     public float DeltaTime;
     public double Time;
 
-    void Execute(ref MeshInstanceData meshData, ref LocalToWorld localTransform)
+    private void Execute([EntityIndexInQuery] int index, ref MeshInstanceData meshData, ref LocalToWorld localTransform)
     {
-        quaternion rotation = math.mul(meshData.Rotation, quaternion.RotateY(10f * DeltaTime));
+        quaternion rotation = math.mul(meshData.Rotation, quaternion.RotateY(10f * DeltaTime * meshData.TimeSpeed));
         float3 position = meshData.Position;
-        position += new float3(math.sin(Time) * 0.1);
+        position += new float3(math.sin(Time * meshData.TimeSpeed + index) * 0.1); // index is just offset for the time.
         meshData.Position = position;
         meshData.Rotation = rotation;
         localTransform.Value = float4x4.TRS(meshData.Position, meshData.Rotation, meshData.Scale);
