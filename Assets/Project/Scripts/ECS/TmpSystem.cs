@@ -17,8 +17,7 @@ public partial struct TmpSystem : ISystem
     {
         var job = new TmpUpdateJob()
         {
-            DeltaTime = SystemAPI.Time.DeltaTime,
-            Time = SystemAPI.Time.ElapsedTime
+            Time = SystemAPI.Time.ElapsedTime,
         };
         job.ScheduleParallel();
     }
@@ -27,16 +26,18 @@ public partial struct TmpSystem : ISystem
 [BurstCompile]
 partial struct TmpUpdateJob : IJobEntity
 {
-    public float DeltaTime;
     public double Time;
 
     private void Execute([EntityIndexInQuery] int index, ref MeshInstanceData meshData, ref LocalToWorld localTransform)
     {
-        quaternion rotation = math.mul(meshData.Rotation, quaternion.RotateY(10f * DeltaTime * meshData.TimeSpeed));
-        float3 position = meshData.Position;
-        position += new float3(math.sin(Time * meshData.TimeSpeed + index) * 0.1); // index is just offset for the time.
-        meshData.Position = position;
-        meshData.Rotation = rotation;
-        localTransform.Value = float4x4.TRS(meshData.Position, meshData.Rotation, meshData.Scale);
+        float moveSpan = 0.1f;
+        double move = math.sin((Time * meshData.TimeSpeed + index) * math.PI) * moveSpan; // index is just offset for the time.
+        float3 position = meshData.Position + new float3(move);
+
+        float angleSpeed = 0.005f;
+        float angle = (float)math.sin(Time * meshData.TimeSpeed * angleSpeed * math.PI) * 360f;
+        quaternion rotation = math.mul(meshData.Rotation, quaternion.RotateY(angle));
+        
+        localTransform.Value = float4x4.TRS(position, rotation, meshData.Scale);
     }
 }
