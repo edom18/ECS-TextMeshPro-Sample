@@ -6,5 +6,5 @@ NOTE: This doesn't render TextMesh Pro font directly. This project uses its font
 
 This is a sample to show how work below.
 
-https://github.com/edom18/ECS-TextMeshPro-Sample/assets/208165/d88af6a5-e3ad-4a2a-b22d-df2758635946
+https://github.com/edom18/ECS-TextMeshPro-Sample/assets/208165/7d7e2b40-ca57-4dcb-8529-6df8a5b68a45
 
