@@ -52,6 +52,9 @@ public class TmpSpawner : MonoBehaviour
     {
         World world = World.DefaultGameObjectInjectionWorld;
         EntityManager entityManager = world.EntityManager;
+        
+        Entity entity = entityManager.CreateEntity();
+        entityManager.SetName(entity, $"TextMeshEntity {index.ToString()}");
 
         RenderFilterSettings filterSettings = RenderFilterSettings.Default;
         filterSettings.ShadowCastingMode = ShadowCastingMode.Off;
@@ -63,9 +66,6 @@ public class TmpSpawner : MonoBehaviour
             FilterSettings = filterSettings,
             LightProbeUsage = LightProbeUsage.Off,
         };
-
-        Entity entity = entityManager.CreateEntity();
-        entityManager.SetName(entity, $"TextMeshEntity {index.ToString()}");
 
         RenderMeshUtility.AddComponents(
             entity,
@@ -92,12 +92,6 @@ public class TmpSpawner : MonoBehaviour
 
         entityManager.AddComponentData(entity, GetCustomUvData(index));
         entityManager.AddComponentData(entity, GetRandomColorData());
-
-        RenderBounds renderBounds = new RenderBounds
-        {
-            Value = _mesh.bounds.ToAABB(),
-        };
-        entityManager.SetComponentData(entity, renderBounds);
     }
 
     private ColorData GetRandomColorData()
